@@ -8,8 +8,5 @@
       "src/StakeRewardToken.sol"
     ],
     "remappings_file": "remappings.json"
-  },
-  "wake": {
-    "enabled": true
   }
 }
