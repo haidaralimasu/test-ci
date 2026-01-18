@@ -7,10 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- *
- *
- *
- *
  * @title MockNFT
  * @notice Simple ERC721 for testing the staking protocol
  */
