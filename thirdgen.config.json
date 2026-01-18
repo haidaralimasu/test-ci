@@ -1,0 +1,15 @@
+{
+  "solc_version": "0.8.25",
+  "exclude_severities": ["Informational", "Low"],
+  "mythril": {
+    "targets": [
+      "src/MockNFT.sol",
+      "src/NFTStaking.sol",
+      "src/StakeRewardToken.sol"
+    ],
+    "remappings_file": "remappings.json"
+  },
+  "wake": {
+    "enabled": true
+  }
+}
