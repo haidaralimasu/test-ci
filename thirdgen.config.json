@@ -8,5 +8,6 @@
       "src/StakeRewardToken.sol"
     ],
     "remappings_file": "remappings.json"
-  }
+  },
+  "exclude_paths": ["lib/", "test/", "script/", "node_modules/", "mock/"]
 }
