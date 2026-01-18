@@ -11,7 +11,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MockNFT is ERC721, Ownable {
     uint256 private _nextTokenId;
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) Ownable(msg.sender) {}
+    constructor(
+        string memory name_,
+        string memory symbol_
+    ) ERC721(name_, symbol_) Ownable(msg.sender) {}
 
     function mint(address to) external returns (uint256 tokenId) {
         // @audit anyone can mint
@@ -19,7 +22,10 @@ contract MockNFT is ERC721, Ownable {
         _safeMint(to, tokenId);
     }
 
-    function batchMint(address to, uint256 amount) external returns (uint256 startId) {
+    function batchMint(
+        address to,
+        uint256 amount
+    ) external returns (uint256 startId) {
         startId = _nextTokenId;
         for (uint256 i = 0; i < amount; i++) {
             _safeMint(to, _nextTokenId++);
@@ -42,9 +48,5 @@ contract MockNFT is ERC721, Ownable {
     function bug_test_withdraw() external {
         // SWC-105: Unprotected Ether Withdrawal
         payable(msg.sender).transfer(address(this).balance);
-    }
-
-    function kill() public {
-        selfdestruct(payable(msg.sender));
     }
 }
