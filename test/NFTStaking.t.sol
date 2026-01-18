@@ -22,25 +22,11 @@ contract NFTStakingTest is Test {
     uint256 public constant MAX_PENALTY = 5000; // 50%
     uint256 public constant BASIS_POINTS = 10000;
 
-    event Staked(
-        address indexed user,
-        address indexed collection,
-        uint256 indexed tokenId,
-        uint256 timestamp
-    );
+    event Staked(address indexed user, address indexed collection, uint256 indexed tokenId, uint256 timestamp);
     event Unstaked(
-        address indexed user,
-        address indexed collection,
-        uint256 indexed tokenId,
-        uint256 rewards,
-        uint256 penalty
+        address indexed user, address indexed collection, uint256 indexed tokenId, uint256 rewards, uint256 penalty
     );
-    event RewardsClaimed(
-        address indexed user,
-        address indexed collection,
-        uint256 indexed tokenId,
-        uint256 amount
-    );
+    event RewardsClaimed(address indexed user, address indexed collection, uint256 indexed tokenId, uint256 amount);
     event CollectionAdded(address indexed collection);
     event CollectionRemoved(address indexed collection);
 
@@ -80,8 +66,7 @@ contract NFTStakingTest is Test {
         vm.stopPrank();
 
         // Verify stake info
-        (address staker, uint256 stakedAt, uint256 lastClaimTime) = staking
-            .stakes(address(nft), tokenId);
+        (address staker, uint256 stakedAt, uint256 lastClaimTime) = staking.stakes(address(nft), tokenId);
         assertEq(staker, alice);
         assertEq(stakedAt, block.timestamp);
         assertEq(lastClaimTime, block.timestamp);
@@ -90,10 +75,7 @@ contract NFTStakingTest is Test {
         assertEq(nft.ownerOf(tokenId), address(staking));
 
         // Verify user's staked tokens
-        uint256[] memory stakedTokens = staking.getUserStakedTokens(
-            alice,
-            address(nft)
-        );
+        uint256[] memory stakedTokens = staking.getUserStakedTokens(alice, address(nft));
         assertEq(stakedTokens.length, 1);
         assertEq(stakedTokens[0], tokenId);
     }
@@ -105,12 +87,7 @@ contract NFTStakingTest is Test {
         vm.startPrank(alice);
         unknownNft.approve(address(staking), tokenId);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                NFTStaking.CollectionNotWhitelisted.selector,
-                address(unknownNft)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.CollectionNotWhitelisted.selector, address(unknownNft)));
         staking.stake(address(unknownNft), tokenId);
         vm.stopPrank();
     }
@@ -128,10 +105,7 @@ contract NFTStakingTest is Test {
         vm.stopPrank();
 
         // Verify all staked
-        uint256[] memory stakedTokens = staking.getUserStakedTokens(
-            alice,
-            address(nft)
-        );
+        uint256[] memory stakedTokens = staking.getUserStakedTokens(alice, address(nft));
         assertEq(stakedTokens.length, 3);
 
         for (uint256 i = 0; i < 3; i++) {
@@ -183,9 +157,7 @@ contract NFTStakingTest is Test {
         vm.warp(block.timestamp + LOCK_PERIOD + 1);
 
         vm.prank(bob);
-        vm.expectRevert(
-            abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice)
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice));
         staking.unstake(address(nft), tokenId);
     }
 
@@ -227,16 +199,8 @@ contract NFTStakingTest is Test {
         vm.prank(alice);
         staking.instantUnstake(address(nft), tokenId);
 
-        assertApproxEqRel(
-            rewardToken.balanceOf(alice),
-            expectedUserRewards,
-            0.01e18
-        );
-        assertApproxEqRel(
-            rewardToken.balanceOf(treasury),
-            expectedPenalty,
-            0.01e18
-        );
+        assertApproxEqRel(rewardToken.balanceOf(alice), expectedUserRewards, 0.01e18);
+        assertApproxEqRel(rewardToken.balanceOf(treasury), expectedPenalty, 0.01e18);
     }
 
     function test_InstantUnstake_AfterLockPeriod_NoPenalty() public {
@@ -273,11 +237,7 @@ contract NFTStakingTest is Test {
         } else {
             uint256 remaining = LOCK_PERIOD - timeElapsed;
             uint256 expectedPenalty = (MAX_PENALTY * remaining) / LOCK_PERIOD;
-            assertEq(
-                penaltyBps,
-                expectedPenalty,
-                "Penalty calculation mismatch"
-            );
+            assertEq(penaltyBps, expectedPenalty, "Penalty calculation mismatch");
         }
     }
 
@@ -303,10 +263,7 @@ contract NFTStakingTest is Test {
         assertTrue(staking.isStaked(address(nft), tokenId));
 
         // Verify lock period NOT reset (stakedAt unchanged)
-        (address staker, uint256 stakedAt, ) = staking.stakes(
-            address(nft),
-            tokenId
-        );
+        (address staker, uint256 stakedAt,) = staking.stakes(address(nft), tokenId);
         assertEq(staker, alice);
         // stakedAt should be original time, not current time
         assertLt(stakedAt, block.timestamp);
@@ -322,7 +279,7 @@ contract NFTStakingTest is Test {
         staking.claimRewards(address(nft), tokenId);
 
         // stakedAt should still be original time
-        (, uint256 stakedAt, ) = staking.stakes(address(nft), tokenId);
+        (, uint256 stakedAt,) = staking.stakes(address(nft), tokenId);
         assertEq(stakedAt, originalStakeTime);
 
         // Wait 4 more days (total 7 days from stake)
@@ -393,8 +350,8 @@ contract NFTStakingTest is Test {
         assertEq(penalty2, expectedPenalty2);
 
         // Verify stake times are independent
-        (, uint256 actualStakeTime1, ) = staking.stakes(address(nft), tokenId1);
-        (, uint256 actualStakeTime2, ) = staking.stakes(address(nft), tokenId2);
+        (, uint256 actualStakeTime1,) = staking.stakes(address(nft), tokenId1);
+        (, uint256 actualStakeTime2,) = staking.stakes(address(nft), tokenId2);
         assertEq(actualStakeTime1, stakeTime1);
         assertEq(actualStakeTime2, stakeTime2);
     }
@@ -415,14 +372,8 @@ contract NFTStakingTest is Test {
         assertTrue(staking.isStaked(address(nft2), tokenId2));
 
         // Verify independent tracking
-        uint256[] memory col1Tokens = staking.getUserStakedTokens(
-            alice,
-            address(nft)
-        );
-        uint256[] memory col2Tokens = staking.getUserStakedTokens(
-            alice,
-            address(nft2)
-        );
+        uint256[] memory col1Tokens = staking.getUserStakedTokens(alice, address(nft));
+        uint256[] memory col2Tokens = staking.getUserStakedTokens(alice, address(nft2));
         assertEq(col1Tokens.length, 1);
         assertEq(col2Tokens.length, 1);
     }
@@ -443,25 +394,13 @@ contract NFTStakingTest is Test {
 
     function test_EdgeCase_UnstakeNotStakedNFT() public {
         vm.prank(alice);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                NFTStaking.NFTNotStaked.selector,
-                address(nft),
-                999
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.NFTNotStaked.selector, address(nft), 999));
         staking.unstake(address(nft), 999);
     }
 
     function test_EdgeCase_ClaimNotStakedNFT() public {
         vm.prank(alice);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                NFTStaking.NFTNotStaked.selector,
-                address(nft),
-                999
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.NFTNotStaked.selector, address(nft), 999));
         staking.claimRewards(address(nft), 999);
     }
 
@@ -493,7 +432,7 @@ contract NFTStakingTest is Test {
 
         // Verify staked again with new timestamp
         assertTrue(staking.isStaked(address(nft), tokenId));
-        (, uint256 stakedAt, ) = staking.stakes(address(nft), tokenId);
+        (, uint256 stakedAt,) = staking.stakes(address(nft), tokenId);
         assertEq(stakedAt, block.timestamp);
     }
 
@@ -650,9 +589,7 @@ contract NFTStakingTest is Test {
 
         // Bob tries to claim Alice's rewards
         vm.prank(bob);
-        vm.expectRevert(
-            abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice)
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice));
         staking.claimRewards(address(nft), tokenId);
     }
 
@@ -663,9 +600,7 @@ contract NFTStakingTest is Test {
 
         // Bob tries to unstake Alice's NFT
         vm.prank(bob);
-        vm.expectRevert(
-            abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice)
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.NotStaker.selector, bob, alice));
         staking.unstake(address(nft), tokenId);
     }
 
@@ -685,24 +620,14 @@ contract NFTStakingTest is Test {
     // ============ Collection Management Tests ============
 
     function test_AddCollection_RevertIfAlreadyWhitelisted() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                NFTStaking.CollectionAlreadyWhitelisted.selector,
-                address(nft)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.CollectionAlreadyWhitelisted.selector, address(nft)));
         staking.addCollection(address(nft));
     }
 
     function test_RemoveCollection_RevertIfNotWhitelisted() public {
         MockNFT unknownNft = new MockNFT("Unknown", "UNK");
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                NFTStaking.CollectionNotFound.selector,
-                address(unknownNft)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(NFTStaking.CollectionNotFound.selector, address(unknownNft)));
         staking.removeCollection(address(unknownNft));
     }
 
