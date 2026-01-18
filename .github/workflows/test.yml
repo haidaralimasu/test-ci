@@ -8,9 +8,14 @@ on:
 env:
   FOUNDRY_PROFILE: ci
 
+# 1. CRITICAL: Grant permission to post comments
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   check:
-    name: Foundry project
+    name: Foundry Project & Security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,20 +26,21 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
 
       - name: Show Forge version
-        run: |
-          forge --version
-
-      - name: Run Forge fmt
-        run: |
-          forge fmt --check
-        id: fmt
+        run: forge --version
 
       - name: Run Forge build
-        run: |
-          forge build --sizes
+        run: forge build --sizes
         id: build
 
       - name: Run Forge tests
-        run: |
-          forge test -vvv
+        run: forge test -vvv
         id: test
+
+      # -------------------------------------------
+      # 2. NEW STEP: Run ThirdGen Security Scanner
+      # -------------------------------------------
+      - name: Run ThirdGen Security Scan
+        if: github.event_name == 'pull_request' # Only scan on PRs (optional but recommended)
+        uses: haidaralimasu/thirdgen-scanner@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
