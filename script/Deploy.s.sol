@@ -39,11 +39,7 @@ contract Deploy is Script {
         vm.startBroadcast(deployer);
 
         // 1. Deploy Reward Token with deployer as admin
-        StakeRewardToken rewardToken = new StakeRewardToken(
-            "NFT Stake Rewards",
-            "NFTR",
-            deployer
-        );
+        StakeRewardToken rewardToken = new StakeRewardToken("NFT Stake Rewards", "NFTR", deployer);
         console.log("StakeRewardToken deployed at:", address(rewardToken));
 
         // 2. Deploy Staking Contract
@@ -93,7 +89,7 @@ contract DemoTransactions is Script {
         address rewardTokenAddr = vm.envAddress("REWARD_TOKEN_ADDRESS");
 
         NFTStaking staking = NFTStaking(stakingAddr);
-        MockNFT mockNFT = MockNFT(mockNftAddr);
+        MockNFT mockNFT = MockNFT(payable(mockNftAddr));
         StakeRewardToken rewardToken = StakeRewardToken(rewardTokenAddr);
 
         console.log("Running demo transactions...");
@@ -143,9 +139,7 @@ contract DemoTransactions is Script {
         vm.stopBroadcast();
 
         console.log("\n=== Demo Complete ===");
-        console.log(
-            "Token 1 still staked (wait for lock period to unstake without penalty)"
-        );
+        console.log("Token 1 still staked (wait for lock period to unstake without penalty)");
         console.log("Token 2 unstaked with penalty");
     }
 }
@@ -172,10 +166,7 @@ contract UnstakeAfterLock is Script {
         console.log("TokenId:", tokenId);
 
         // Check if lock period has ended
-        uint256 remaining = staking.lockTimeRemaining(
-            address(mockNftAddr),
-            tokenId
-        );
+        uint256 remaining = staking.lockTimeRemaining(address(mockNftAddr), tokenId);
         console.log("Lock time remaining (seconds):", remaining);
 
         if (remaining > 0) {

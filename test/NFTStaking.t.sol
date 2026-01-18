@@ -23,7 +23,9 @@ contract NFTStakingTest is Test {
     uint256 public constant BASIS_POINTS = 10000;
 
     event Staked(address indexed user, address indexed collection, uint256 indexed tokenId, uint256 timestamp);
-    event Unstaked(address indexed user, address indexed collection, uint256 indexed tokenId, uint256 rewards, uint256 penalty);
+    event Unstaked(
+        address indexed user, address indexed collection, uint256 indexed tokenId, uint256 rewards, uint256 penalty
+    );
     event RewardsClaimed(address indexed user, address indexed collection, uint256 indexed tokenId, uint256 amount);
     event CollectionAdded(address indexed collection);
     event CollectionRemoved(address indexed collection);
@@ -712,7 +714,7 @@ contract ReentrancyAttacker {
 
     constructor(address _staking, address _nft) {
         staking = NFTStaking(_staking);
-        nft = MockNFT(_nft);
+        nft = MockNFT(payable(_nft));
     }
 
     function attack(uint256 _tokenId) external {
@@ -729,4 +731,3 @@ contract ReentrancyAttacker {
         }
     }
 }
-

@@ -18,11 +18,7 @@ contract StakeRewardToken is ERC20, AccessControl {
      * @param symbol_ Token symbol
      * @param admin Address to receive DEFAULT_ADMIN_ROLE
      */
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        address admin
-    ) ERC20(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_, address admin) ERC20(name_, symbol_) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
